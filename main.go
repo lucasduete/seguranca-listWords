@@ -23,7 +23,8 @@ func main() {
 
 	//words := findWordsInArticle(body)
 	words := findAllWords(body)
-
+	words = cleanWords(words)
+	
 	fmt.Println(words)
 }
 
@@ -95,4 +96,22 @@ func countRepetitionWords(words []string) {
 	}
 
 	fmt.Print(repetition)
+}
+
+func cleanWords(words []string) []string {
+
+	for key, _ := range words {
+
+		words[key] = strings.Replace(words[key], ".", "", -1)
+		words[key] = strings.Replace(words[key], "\"", "", -1)
+		words[key] = strings.Replace(words[key], "'", "", -1)
+		words[key] = strings.Replace(words[key], "(", "", -1)
+		words[key] = strings.Replace(words[key], ")", "", -1)
+
+		if strings.Contains(words[key], "@*.com") {
+			words[key] = ""
+		}
+	}
+
+	return words
 }
