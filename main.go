@@ -12,9 +12,7 @@ const breakpoint = "rnews:articleBody"
 
 func main() {
 
-	var words = []string{}
-
-	resp, err := http.Get("http://www.ifpb.edu.br/noticias/2018/05/campus-sousa-comunidade-escolhe-diretor-geral")
+	resp, err := http.Get("https://www.diolinux.com.br/2018/05/microsoft-bloqueia-atualizacao-do-windows-10-em-ssds-da-intel.html")
 
 	if err != nil {
 		log.Fatal(err)
@@ -23,14 +21,13 @@ func main() {
 	defer resp.Body.Close()
 	body := html.NewTokenizer(resp.Body)
 
-	words = findWordsInArticle(body)
+	//words := findWordsInArticle(body)
+	words := findAllWords(body)
 
-	//fmt.Print(words)
-	countRepetitionWords(words)
-
+	fmt.Println(words)
 }
 
-func findWordsInArticle(body *html.Tokenizer) []string  {
+func findWordsInArticle(body *html.Tokenizer) []string {
 	var words = []string{}
 
 	for {
@@ -63,16 +60,31 @@ func findWordsInArticle(body *html.Tokenizer) []string  {
 	return words
 }
 
-func findAllWords(body *html.Tokenizer)  {
-	for {
+func findAllWords(body *html.Tokenizer) []string {
+	words := make([]string, 5)
+
+	for !strings.Contains(body.Token().String(), "</html") {
 		payload := body.Next()
 
-		if payload == html.TextToken {
+		if strings.Contains(body.Token().String(), "<body") {
+			for !strings.Contains(body.Token().String(), "</body") {
+				payload = body.Next()
 
-			fmt.Print(body.Token())
+				if !strings.Contains(body.Token().String(), "<script") &&
+						!strings.Contains(body.Token().String(), "<style") {
+					payload = body.Next()
+					if payload == html.TextToken {
+						temp := strings.Fields(body.Token().String())
+						words = append(words, temp...)
 
+					}
+				}
+			}
+			break
 		}
 	}
+
+	return words
 }
 
 func countRepetitionWords(words []string) {
